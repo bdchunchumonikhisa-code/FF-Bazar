@@ -1,0 +1,58 @@
+<!DOCTYPE html> 
+<html lang="bn"> 
+<head> 
+<meta charset="UTF-8"> 
+<meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+<title>Payment - FFBazar</title> 
+<style> 
+body { background: #f5f7fa; text-align: center; padding: 20px; padding-bottom:80px; font-family: Arial; } 
+.wallet-circle { width: 120px; height: 120px; border: 3px solid #0047ab; border-radius: 50%; margin: 20px auto; display: flex; align-items: center; justify-content: center; font-weight: bold; background:#fff; color:#0047ab; } 
+.mobile-btn { background: #0047ab; color: #fff; padding: 12px; border-radius: 8px; margin: 15px; font-weight:bold; } 
+.pay-methods { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin: 20px; } 
+.pay-box { background: #fff; padding: 20px; border-radius: 10px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border:2px solid #ddd; }
+.pay-box:hover { border-color:#0047ab; }
+.pay-box img { height:40px; object-fit:contain; } 
+.pay-bottom { position: fixed; bottom: 0; width: 100%; left:0; background: #e6f0ff; padding: 15px; font-size: 18px; font-weight: bold; color: #0047ab; border-top:1px solid #cce0ff; } 
+.close { position:absolute; top:10px; left:15px; font-size:24px; cursor:pointer; }
+</style> 
+</head> 
+<body> 
+
+<span class="close" onclick="window.location.href='add-money.html'">×</span>
+<div class="wallet-circle">Wallet</div> 
+<h2>Wallet</h2> 
+<div class="mobile-btn">Mobile Banking</div> 
+
+<div class="pay-methods"> 
+  <div class="pay-box" onclick="goPay('bkash')"> 
+    <!-- Direct link. 100% show korbe -->
+    <img src="https://www.logo.wine/a/logo/BKash/BKash-Logo.wine.svg" alt="bKash"> 
+  </div> 
+  <div class="pay-box" onclick="goPay('nagad')"> 
+    <!-- Nagad logo fix. তোমার যদি nogod.png থাকে তাহলে src="nogod.png" দাও -->
+    <img src="https://i.ibb.co/QvW2K0b/nagad.png" alt="Nagad"> 
+  </div> 
+</div> 
+
+<div class="pay-bottom">Pay <span id="payAmount">0</span>.00৳</div> 
+
+<script> 
+let amount = 0;
+window.onload = function() { 
+  amount = localStorage.getItem('addMoneyAmount') || 0; 
+  document.getElementById('payAmount').innerText = parseFloat(amount).toFixed(0); 
+} 
+
+function goPay(method) {
+  if(amount < 10) {
+    alert("আগে Amount লিখে আসো");
+    window.location.href = 'add-money.html';
+    return;
+  }
+  // কোনটা click করছে সেটা save করে পাঠাবে
+  localStorage.setItem('paymentMethod', method);
+  window.location.href = method + '.html'; 
+}
+</script> 
+</body> 
+</html>
