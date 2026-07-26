@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nagad Payment</title>
+<style>
+body { background: #f5f7fa; margin: 0; padding: 0; font-family: Arial; padding-bottom:20px; }
+.header { background: #fff; padding: 10px 15px; display: flex; align-items: center; justify-content:space-between; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
+.header-left { display:flex; align-items:center; gap:10px; }
+.header img { height: 35px; }
+.back { font-size:22px; cursor:pointer; }
+.wallet-box { background: #fff; margin: 15px; padding: 15px; border-radius: 8px; display: flex; align-items: center; gap: 10px; box-shadow:0 2px 5px rgba(0,0,0,0.05); }
+.wallet-box img { width: 40px; height: 40px; border: 1px solid #eee; border-radius: 50%; padding: 5px; object-fit:contain; }
+.amount-box { background: #fff; margin: 0 15px 15px; padding: 15px; border-radius: 8px; font-size: 18px; font-weight: bold; color: #555; text-align:center; box-shadow:0 2px 5px rgba(0,0,0,0.05); }
+.main-box { background: #D50032; margin: 15px; padding: 20px; border-radius: 10px; color: #fff; }
+.main-box h3 { text-align: center; margin-bottom: 15px; font-size: 18px; }
+.trx-input { width: 100%; padding: 12px; border: none; border-radius: 8px; margin-bottom: 15px; font-size: 16px; box-sizing: border-box; outline:none; }
+.main-box ul { list-style: none; padding: 0; margin: 0; }
+.main-box li { margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.2); font-size: 14px; line-height: 1.6; }
+.main-box li:last-child { border:none; padding-bottom:0; margin-bottom:0; }
+.verify-btn { width:100%; background:#fff; color:#D50032; padding:14px; border:none; border-radius:8px; font-weight:bold; font-size:16px; margin-top:15px; cursor:pointer; }
+.highlight { color:#FFEB3B; font-weight:bold; }
+.copy-btn { background:#fff; color:#D50032; border:none; padding:3px 8px; border-radius:5px; margin-left:5px; font-size:12px; cursor:pointer; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <span class="back" onclick="history.back()">←</span>
+    <b>Nagad Payment</b>
+  </div>
+  <div><b>৳<span id="showAmount">0</span></b></div>
+</div>
+
+<div class="wallet-box">
+  <!-- এখানেই Logo. তোমার file er name nogod.png hole etai thakbe -->
+  <img src="nogod.png" alt="Nagad Logo"> 
+  <div>
+    <b>Nagad Wallet</b><br>
+    <small>Send Money করুন</small>
+  </div>
+</div>
+
+<div class="amount-box">
+  Amount: ৳<span id="amountText">0</span>
+</div>
+
+<div class="main-box">
+  <h3>ট্রান্সজেকশন আইডি দিন</h3>
+  <input type="text" id="txid" class="trx-input" placeholder="TXN ID লিখুন">
+  
+  <ul>
+    <li>• *167# ডায়াল করুন অথবা Nagad অ্যাপে যান।</li>
+    <li>• <span class="highlight">"Send Money"</span> সিলেক্ট করুন।</li>
+    <li>• নম্বর দিন: <span class="highlight">01712345678</span> <button class="copy-btn" onclick="copyNum()">Copy</button></li>
+    <li>• টাকার পরিমাণ: <span class="highlight" id="amountLi">0</span> TK</li>
+    <li>• Nagad PIN দিয়ে Confirm করুন।</li>
+    <li>• উপরের বক্সে <span class="highlight">Transaction ID</span> দিয়ে VERIFY করুন।</li>
+  </ul>
+  <button class="verify-btn" onclick="verifyPayment()">VERIFY</button>
+</div>
+
+<script>
+let amount = localStorage.getItem('addMoneyAmount') || 0;
+document.getElementById('showAmount').innerText = parseFloat(amount).toFixed(0);
+document.getElementById('amountText').innerText = parseFloat(amount).toFixed(0);
+document.getElementById('amountLi').innerText = parseFloat(amount).toFixed(0);
+
+function copyNum() {
+  navigator.clipboard.writeText("01712345678");
+  alert("Number Copied!");
+}
+
+function verifyPayment() {
+  let txid = document.getElementById('txid').value;
+  if(!txid) { alert("Transaction ID দিন"); return; }
+  
+  // Balance Add করার code
+  let currentBalance = parseFloat(localStorage.getItem('walletBalance') || 0);
+  let newBalance = currentBalance + parseFloat(amount);
+  localStorage.setItem('walletBalance', newBalance);
+  
+  alert(amount + " TK Add Money Request Submitted!");
+  localStorage.removeItem('addMoneyAmount'); // clear kore dibe
+  window.location.href = 'index.html';
+}
+</script>
+</body>
+      </html>
