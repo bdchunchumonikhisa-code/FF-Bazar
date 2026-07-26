@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pro Admin Panel - FFBazar</title>
+<style>
+body { background:#f5f7fa; font-family:'SolaimanLipi', Arial; padding:20px; }
+.login-box,.admin-box { background:#fff; max-width:900px; margin:20px auto; padding:25px; border-radius:12px; box-shadow:0 5px 20px rgba(0,0,0,0.1); }
+h2 { text-align:center; color:#0047ab; }
+input { width:100%; padding:12px; margin:10px 0; border:1px solid #ddd; border-radius:8px; box-sizing:border-box; }
+.btn { width:100%; background:#0047ab; color:#fff; padding:12px; border:none; border-radius:8px; font-weight:bold; cursor:pointer; }
+.tabs { display:flex; gap:10px; margin-bottom:20px; border-bottom:2px solid #eee; }
+.tab { padding:10px 20px; cursor:pointer; border:none; background:none; font-weight:bold; color:gray; }
+.tab.active { color:#0047ab; border-bottom:3px solid #0047ab; }
+.request-card { background:#f9f9f9; padding:15px; margin-bottom:15px; border-radius:8px; border-left:5px solid #ff9800; }
+.request-card.approved { border-left-color:#4CAF50; }
+.request-card.rejected { border-left-color:#f44336; }
+.approve-btn { background:#4CAF50; color:#fff; padding:8px 18px; border:none; border-radius:5px; cursor:pointer; margin-right:10px; }
+.reject-btn { background:#f44336; color:#fff; padding:8px 18px; border:none; border-radius:5px; cursor:pointer; }
+.logout { background:#f44336; margin-bottom:20px; }
+.loading { text-align:center; padding:20px; color:#0047ab; }
+.reason-box { width:100%; padding:8px; margin-top:10px; border:1px solid #ddd; border-radius:5px; display:none; }
+</style>
+</head>
+<body>
+
+<!-- Login Box -->
+<div class="login-box" id="loginBox">
+  <h2>Admin Login</h2>
+  <input type="email" id="adminEmail" placeholder="Admin Email">
+  <input type="password" id="adminPass" placeholder="Admin Password">
+  <button class="btn" onclick="adminLogin()">Login</button>
+</div>
+
+<!-- Admin Panel -->
+<div class="admin-box" id="adminBox" style="display:none;">
+  <h2>FFBazar Pro Admin Panel</h2>
+  <button class="btn logout" onclick="adminLogout()">Logout</button>
+  
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" onclick="changeTab('pending')">Pending</button>
+    <button class="tab" onclick="changeTab('approved')">Approved</button>
+    <button class="tab" onclick="changeTab('rejected')">Rejected</button>
+  </div>
+  
+  <div id="requestList" class="loading">Loading...</div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, getDocs, doc, updateDoc, addDoc, query, where, orderBy, increment, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA-VQMjqAhIB33bc8Pm79voqB_OvwWrjzE",
+  authDomain: "ff-bazar-4c198.firebaseapp.com",
+  projectId: "ff-bazar-4c198",
+  storageBucket: "ff-bazar-4c198.firebasestorage.app",
+  messagingSenderId: "1090990307122",
+  appId: "1:1090990307122:web:22f6b02df43b818b49092b",
+  measurementId: "G-VY6LVKJRFX"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// ✅ 4. Admin Email Whitelist - এখানে তোমার Admin Email দাও
+const ADMIN_EMAILS = ["admin@ffbazar.com", "chun@ffbazar.com"]; 
+
+let currentTab = 'pending';
+
+const loginBox = document.getElementById('loginBox');
+const adminBox = document.getElementById('adminBox');
+
+// Login
+window.adminLogin = () => {
+  let email = document.getElementById('adminEmail').value;
+  let pass = document.getElementById('adminPass').value;
+  signInWithEmailAndPassword(auth, email, pass)
+  .then((cred) => {
+    // ✅ 4. Email Check
+    if(!ADMIN_EMAILS.includes(cred.user.email)){
+      alert("আপনি Admin না!");
+      signOut(auth);
+    }
+  })
+  .catch((e) => { alert("Login Failed: " + e.message); });
+}
+
+window.adminLogout = () => { signOut(auth); }
+
+onAuthStateChanged(auth, (user) => {
+  if (user && ADMIN_EMAILS.includes(user.email)) {
+    loginBox.style.display = 'none';
+    adminBox.style.display = 'block';
+    loadRequests();
+  } else {
+    loginBox.style.display = 'block';
+    adminBox.style.display = 'none';
+  }
+});
+
+window.changeTab = (tab) => {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  loadRequests();
+}
+
+// Load Requests
+async function loadRequests() {
+  document.getElementById('requestList').innerHTML = '<div class="loading">Loading...</div>';
+  const q = query(collection(db, "addMoneyRequests"), where("status", "==", currentTab), orderBy("time", "desc"));
+  const querySnapshot = await getDocs(q);
+  let html = '';
+  if(querySnapshot.empty){
+    html = '<p style="text-align:center; color:gray;">এখানে কোনো Request নাই</p>';
+  } else {
+    querySnapshot.forEach((docSnap) => {
+      let req = docSnap.data();
+      let buttons = '';
+      if(currentTab === 'pending'){
+        buttons = `
+        <button class="approve-btn" onclick="approveRequest('${docSnap.id}', '${req.uid}', ${req.amount})">Approve</button>
+        <button class="reject-btn" onclick="showRejectBox('${docSnap.id}')">Reject</button>
+        <input type="text" id="reason-${docSnap.id}" class="reason-box" placeholder="Reject এর কারণ লিখুন">`;
+      }
+      html += `
+      <div class="request-card ${currentTab}">
+        <p><b>User UID:</b> ${req.uid}</p>
+        <p><b>Email:</b> ${req.email}</p>
+        <p><b>Amount:</b> ${req.amount} TK</p>
+        <p><b>TXN ID:</b> ${req.txid}</p>
+        <p><b>Status:</b> ${req.status}</p>
+        ${req.reason ? `<p><b>Reason:</b> ${req.reason}</p>` : ''}
+        ${buttons}
+      </div>`;
+    });
+  }
+  document.getElementById('requestList').innerHTML = html;
+}
+
+window.showRejectBox = (id) => {
+  document.getElementById(`reason-${id}`).style.display = 'block';
+}
+
+// ✅ 1. Double Approve বন্ধ + ✅ 2. History + ✅ 3. Reason + ✅ 5. Loading
+window.approveRequest = async (docId, uid, amount) => { 
+  if(!confirm(amount + " TK Approve করবেন?")) return;
+  document.getElementById('requestList').innerHTML = '<div class="loading">Processing...</div>';
+  
+  try { 
+    // 1. Double Approve Check
+    const reqRef = doc(db, "addMoneyRequests", docId); 
+    const reqSnap = await getDocs(query(collection(db, "addMoneyRequests"), where("__name__", "==", docId)));
+    if(reqSnap.docs[0].data().status !== 'pending'){
+      alert("এই Request আগেই Process করা হয়েছে!");
+      loadRequests();
+      return;
+    }
+
+    // 2. Wallet Balance Update
+    const userRef = doc(db, "wallets", uid); 
+    await updateDoc(userRef, { balance: increment(Number(amount)) }); 
+
+    // 3. Request Status Update
+    await updateDoc(reqRef, { status: "approved", processedAt: serverTimestamp() }); 
+
+    // 4. ✅ Wallet History Add
+    await addDoc(collection(db, "walletHistory"), {
+      uid: uid,
+      type: "Add Money",
+      amount: amount,
+      method: "Bkash/Nagad",
+      time: serverTimestamp()
+    });
+
+    alert(amount + " TK Approve করা হয়েছে!"); 
+    loadRequests(); 
+  } catch (e) { 
+    alert("Error: " + e.message); 
+    loadRequests();
+  } 
+}
+
+// Reject with Reason
+window.rejectRequest = async (docId) => {
+  let reason = document.getElementById(`reason-${docId}`).value;
+  if(!reason){ alert("Reject এর কারণ লিখুন"); return; }
+  document.getElementById('requestList').innerHTML = '<div class="loading">Processing...</div>';
+  
+  try {
+    const reqRef = doc(db, "addMoneyRequests", docId);
+    await updateDoc(reqRef, { status: "rejected", reason: reason, processedAt: serverTimestamp() });
+    alert("Request Reject করা হয়েছে!");
+    loadRequests();
+  } catch(e) {
+    alert("Error: " + e.message);
+    loadRequests();
+  }
+}
+</script>
+</body>
+  </html>
