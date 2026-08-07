@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Payment - FFBazar</title>
+<style>
+body{background:#f5f7fa; font-family:Arial; margin:0; padding:0;}
+.topbar{background:#fff; padding:12px; display:flex; justify-content:space-between; align-items:center; box-shadow:0 2px 5px rgba(0,0,0,0.05);}
+.payment-box{text-align:center; padding:30px 15px;}
+.payment-box img{width:100px; height:100px; border:2px solid #ddd; border-radius:50%; padding:10px;}
+.payment-box h2{color:#555; margin-top:10px;}
+.pay-btn{width:90%; margin:15px auto; background:#0047ab; color:#fff; padding:14px; border:none; border-radius:8px; font-size:16px; font-weight:bold; cursor:pointer; display:block;}
+.method-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:12px; padding:0 15px 50px 15px;}
+.method-card{background:#fff; border:1px solid #ddd; border-radius:10px; padding:20px 10px; text-align:center; cursor:pointer;}
+.method-card img{height:40px;}
+.bottom-pay{position:fixed; bottom:0; width:100%; background:#e6f0ff; padding:15px; text-align:center; font-weight:bold; color:#0047ab; font-size:16px; border-top:1px solid #ccc;}
+</style>
+</head>
+<body>
+<div class="topbar">
+    <span onclick="history.back()" style="font-size:22px;">🏠</span>
+    <div><span>A</span><span style="margin-left:10px; font-size:22px;">×</span></div>
+</div>
+<div class="payment-box">
+    <img src="images/wallet.png" alt="Wallet">
+    <h2>Wallet</h2>
+</div>
+<button class="pay-btn" onclick="document.getElementById('methods').style.display='grid'">Mobile Banking</button>
+<div class="method-grid" id="methods" style="display:none;">
+    <div class="method-card" onclick="goBkash()">
+        <img src="images/bkash.png" alt="bKash">
+    </div>
+    <div class="method-card" onclick="goNagad()">
+        <img src="images/nogod.png" alt="Nagad">
+    </div>
+</div>
+<div class="bottom-pay">Pay ৳<span id="payAmount">0.00</span></div>
+<script>
+let amount = localStorage.getItem('amount') || 0;
+document.getElementById('payAmount').innerText = parseFloat(amount).toFixed(2);
+function goBkash(){ window.location.href = 'bkash.html'; }
+function goNagad(){ window.location.href = 'nagad.html'; }
+</script>
+</body>
+</html>
