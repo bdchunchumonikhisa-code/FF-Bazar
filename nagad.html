@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nagad Payment - FFBazar</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Arial',sans-serif}
+body{background:#f5f7fa}
+.top-bar{background:#fff;padding:10px 15px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 4px rgba(0,0,0,0.1)}
+.top-bar img{height:40px}
+.amount-box{text-align:center;padding:15px;font-size:24px;font-weight:bold;color:#555}
+.nagad-box{background:#e4002b;color:#fff;margin:10px;border-radius:12px;padding:20px}
+.nagad-box h3{text-align:center;font-size:18px;margin-bottom:15px}
+.nagad-box input{width:100%;padding:14px;border:none;border-radius:8px;font-size:15px;margin-bottom:15px}
+.nagad-box ul{list-style:none}
+.nagad-box li{margin-bottom:12px;font-size:14px;line-height:1.6;display:flex;gap:8px}
+.nagad-box li b{color:#ffff00}
+.number{color:#ffff00;font-weight:bold;font-size:16px}
+.copy-btn{background:rgba(255,255,255,0.2);color:#fff;border:none;padding:5px 12px;border-radius:6px;font-size:12px;margin-left:5px;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
+.amount2{color:#ffff00;font-weight:bold;font-size:18px}
+.verify-btn{width:90%;background:#a0001e;color:#fff;padding:16px;border:none;border-radius:10px;font-size:16px;font-weight:bold;margin:15px auto;display:block;cursor:pointer}
+.alert{padding:12px;border-radius:8px;text-align:center;margin:10px;display:none;font-weight:bold}
+.alert.error{background:#c62828;color:#fff}
+.alert.success{background:#00a63e;color:#fff}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <span>←</span>
+  <img src="images/nagod.png" alt="Nagad">
+  <span>×</span>
+</div>
+
+<div class="amount-box">৳ <span id="amount">0</span></div>
+
+<div class="nagad-box">
+  <h3>ট্রানজেকশন আইডি দিন</h3>
+  
+  <div class="alert error" id="errorBox">Transaction ID not found. Please try again after a few minutes.</div>
+  <div class="alert success" id="successBox">✓ Payment Successful! আপনার অর্ডার প্রসেস হচ্ছে।</div>
+  
+  <input type="text" id="trxid" placeholder="ট্রানজেকশন আইডি দিন">
+  
+  <ul>
+    <li>• *167# ডায়াল কোড দিন অথবা আপনার Nagad অ্যাপ খুলুন।</li>
+    <li>• ক্লিক করুন "<b>সেন্ড মানি</b>" .</li>
+    <li>• এই নম্বরটি প্রাপক নম্বর হিসেবে ব্যবহার করুন: 
+      <span class="number">01873786543</span> 
+      <button class="copy-btn" onclick="copyNum('01873786543')">📋 কপি</button>
+    </li>
+    <li>• পরিমাণ: <span class="amount2" id="amount2">0</span></li>
+    <li>• কনফার্ম করতে আপনার Nagad মোবাইল মেনু PIN দিন।</li>
+    <li>• সবকিছু সঠিক হলে আপনি Nagad থেকে একটি কনফার্মেশন মেসেজ পাবেন।</li>
+    <li>• এখন উপরের বক্সে আপনার ট্রানজেকশন আইডি দিন এবং নিচের VERIFY বাটনে ক্লিক করুন।</li>
+  </ul>
+</div>
+
+<button class="verify-btn" onclick="verify()">ভেরিফাই</button>
+
+<script>
+let amt = localStorage.getItem('amount') || 0;
+document.getElementById('amount').innerText = amt;
+document.getElementById('amount2').innerText = amt;
+
+function copyNum(num) {
+  navigator.clipboard.writeText(num);
+  alert("কপি হয়েছে: " + num);
+}
+
+function verify() {
+  let trx = document.getElementById('trxid').value;
+  if(trx == '') {
+    alert("ট্রানজেকশন আইডি দিন");
+    return;
+  }
+  
+  document.getElementById('errorBox').style.display = 'none';
+  document.getElementById('successBox').style.display = 'block';
+  
+  setTimeout(() => {
+    alert("Payment Successful! ✅\nআপনার অর্ডার ২ মিনিটের মধ্যে চলে যাবে");
+    window.location.href = 'index.html';
+  }, 2000);
+}
+</script>
+
+</body>
+</html>
