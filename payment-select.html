@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Payment - FFBazar</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}body{background:#f5f7fa;text-align:center}
+.header{padding:20px}.header img{height:50px}h2{color:#555;margin:15px 0;font-size:22px}
+.btn{background:#0047ab;color:#fff;width:90%;padding:16px;border:none;border-radius:10px;font-size:16px;font-weight:bold;margin:10px auto;display:block}
+.pay-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:15px;padding:0 15px;margin:20px 0}
+.pay-card{background:#fff;border:2px solid #eee;border-radius:10px;padding:20px;text-align:center;cursor:pointer}
+.pay-card img{height:45px}
+.bottom{position:fixed;bottom:0;left:0;width:100%;background:#e8f0ff;padding:18px;text-align:center;font-size:18px;font-weight:bold;color:#0047ab}
+</style>
+</head>
+<body>
+<div class="header">
+  <img src="images/ffbazar.png">
+  <h2>TOP UP FFBazar</h2>
+</div>
+
+<button class="btn">মোবাইল ব্যাংকিং</button>
+
+<div class="pay-grid">
+  <div class="pay-card" onclick="goPay('bkash')">
+    <img src="images/bkash.png" alt="bKash">
+  </div>
+  <div class="pay-card" onclick="goPay('nagad')">
+    <img src="images/nagod.png" alt="Nagad">
+  </div>
+</div>
+
+<div class="bottom">পে করুন <span id="payAmount">0.00</span> ৳</div>
+
+<script>
+document.getElementById('payAmount').innerText = (localStorage.getItem('amount')||0) + '.00';
+function goPay(method){
+  localStorage.setItem('payGateway',method);
+  if(method=='bkash'){
+    window.location.href='bKash.html'
+  }else{
+    window.location.href='Nagad.html'
+  }
+}
+</script>
+</body>
+  </html>
